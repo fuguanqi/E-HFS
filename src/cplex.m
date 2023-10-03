@@ -3,18 +3,18 @@ n=3;
 n_S=2;
 n_V=3;
 n_T=3;
+M=999999;
 
 load (strcat('problems\prob_',num2str(n),'_',num2str(n_S),'.mat'));
 
 
 %Define variables
 Q=binvar(n,n_S-1,5,5,n_T,'full');%transportation
-U=binvar(n,n_S,5,n_V,'full'); % transportation speed
+U=binvar(n,n_S,5,n_V,'full'); % processing and speed
 W=binvar(n,n,n_S,5,'full'); %direct precedence
 W3=binvar(n,n,n_S,'full'); %direct precedence
 X=binvar(n,n_S,'full'); %turn off
-is_early=binvar(n,n_S,'full');
-is_tardy=binvar(n,n_S,'full');
+
 
 S=sdpvar(n,n_S,'full'); %starting times
 C=sdpvar(n,n_S,'full'); %completion time
@@ -36,6 +36,22 @@ E_ET=sdpvar(n,n_S,'full'); % the overall ET cost
 
 
 %Constaints
+% Constraints=[0<=S<=M];
+% Constraints=[Constraints,0<=C<=M];
+% Constraints=[Constraints,0<=D<=M];
+% Constraints=[Constraints,0<=A<=M];
+% Constraints=[Constraints,0<=T_minus<=M];
+% Constraints=[Constraints,0<=T_plus<=M];
+% Constraints=[Constraints,0<=T_I<=M];
+% Constraints=[Constraints,0<=E_T<=M*999];
+% Constraints=[Constraints,0<=elQ<=M*999];
+% Constraints=[Constraints,0<=bU<=M*999];
+% Constraints=[Constraints,0<=E_P<=M*999];
+% Constraints=[Constraints,0<=E_I<=M*999];
+% Constraints=[Constraints,0<=E_SI<=M*999];
+% Constraints=[Constraints,0<=E_ET<=M*999];
+
+%Constaints
 Constraints=[0<=S];
 Constraints=[Constraints,0<=C];
 Constraints=[Constraints,0<=D];
@@ -44,10 +60,13 @@ Constraints=[Constraints,0<=T_minus];
 Constraints=[Constraints,0<=T_plus];
 Constraints=[Constraints,0<=T_I];
 Constraints=[Constraints,0<=E_T];
+Constraints=[Constraints,0<=elQ];
+Constraints=[Constraints,0<=bU];
 Constraints=[Constraints,0<=E_P];
 Constraints=[Constraints,0<=E_I];
 Constraints=[Constraints,0<=E_SI];
 Constraints=[Constraints,0<=E_ET];
+
 
 
 
@@ -128,8 +147,8 @@ for i=1:n
     for j=1:n_S
         for m=1:5
             Constraints=[Constraints, ...
-                % sum(W(i,:,j,m),"all")<=sum(U(i,j,m,:),"all"), ...
-                % sum(W(:,i,j,m),"all")<=sum(U(i,j,m,:),"all"), ...
+                sum(W(i,:,j,m),"all")<=sum(U(i,j,m,:),"all"), ...
+                sum(W(:,i,j,m),"all")<=sum(U(i,j,m,:),"all"), ...
                 bU(i,j,m)==b(j,m)*sum(U(i,j,m,:),"all"), ...
                 ];
         end
@@ -139,7 +158,7 @@ end
 for j=1:n_S
     for m=1:5
         Constraints=[Constraints, ...
-            sum(W(:,:,j,m),"all")>=(sum(U(:,j,m,:),"all")-1)*2, ...
+            sum(W(:,:,j,m),"all")>=sum(U(:,j,m,:),"all")-1, ...
             ];
     end
 end
@@ -149,13 +168,12 @@ for i=1:n
         Constraints=[Constraints, ...
             sum(U(i,j,:,:),"all")==1, ...
             D(i,j)==A(i,j)+OPA(i,j), ...
-            implies(is_tardy(i,j),S(i,j)>=D(i,j)+window_width(i,j)/2)
-            implies(is_tardy(i,j),T_plus(i,j)==S(i,j)-D(i,j)-window_width(i,j)/2), ...
-            implies(is_early(i,j),S(i,j)<=D(i,j)+window_width(i,j)/2)
-            implies(is_early(i,j),T_minus(i,j)==D(i,j)-window_width(i,j)/2-S(i,j)), ...
-            E_ET(i,j)==T_minus(i,j)*alpha_(i,j)+T_plus(i,j)*beta(i,j), ...
+            S(i,j)>=A(i,j), ...
+            T_minus(i,j)>=D(i,j)-window_width(i,j)/2-S(i,j), ...
+            T_plus(i,j)>=S(i,j)-D(i,j)-window_width(i,j)/2, ...
+            E_ET(i,j)==T_minus(i,j)*alpha_(i,j)+T_plus(i,j)*beta_(i,j), ...
             1-sum(W(i,:,j,:),"all")<=X(i,j), ...
-            implies(X(i,j),E_SI(i,j)==E_I(i,j)), ...
+            implies(1-X(i,j),E_SI(i,j)==E_I(i,j)), ...
             implies(X(i,j),E_SI(i,j)==sum(bU(i,j,:),"all")), ...
             ];
     end
