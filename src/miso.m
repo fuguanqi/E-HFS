@@ -253,6 +253,7 @@ while ii<maxeval
     ii=ii+5;
 end
 data_to_write(:,end+1)=[sol.cur_best(end);sol.T(end)];
+[status, msg, msgID] = mkdir(strcat(datafile));
 writematrix(data_to_write,strcat(datafile,'/n',num2str(Data.prob.n),'_',num2str(Data.prob.n_S)), 'WriteMode','append');
 
 end
