@@ -59,8 +59,8 @@ for i=numel(job_seq):-1:1
     f=f(:,idx);
     f=[f,[ub;f(2,end)+slope*(ub-f(1,end))]];
     x=find(f(2,:)==min(f(2,:)));
-    ub=f(1,(x(1)));
-    C(i)=f(1,x(1))+p(i);
+    ub=f(1,(x(end)));
+    C(i)=f(1,x(end))+p(i);
 end
 end
 

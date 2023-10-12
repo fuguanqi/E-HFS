@@ -3,7 +3,7 @@ n=20;
 n_S=2;
 n_V=3;
 n_T=3;
-M=constants.M;
+% M=constants.M;
 
 load (strcat('problems\prob_',num2str(n),'_',num2str(n_S),'.mat'));
 
@@ -24,9 +24,6 @@ D=sdpvar(n,n_S,'full'); % OPA end time
 T_I=sdpvar(n,n,n_S,'full'); % idle time after o_ij
 T_minus=sdpvar(n,n_S,'full'); % earliness time
 T_plus=sdpvar(n,n_S,'full'); % tardiness time
-
-
-
 
 bU=sdpvar(n,n_S,5,'full');% temp
 E_P=sdpvar(n,n_S,'full');%processing energy
