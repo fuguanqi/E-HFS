@@ -9,7 +9,7 @@ machine=[3,5,5,4,3,3,2,5];
 for n=[2 3 4 5 10 15 20 40 60 80 100 120]
 
     %The maximal number of operations of one order
-    for n_S=[2 4 8]
+    for n_S=[1 2 4 8]
 
         % Machine unit energy from Su & Sun, 2018
         e(:,:,1)=[
@@ -86,17 +86,23 @@ for n=[2 3 4 5 10 15 20 40 60 80 100 120]
 
         %energy to cost
         a=a*0.01;
-        b=b*0.01;
-        e=e*0.01;
+        b=round(b*0.01,2);
+        e=round(e*0.01,2);
+        
+        for vv=1:3
+            a(:,:,vv)=b./round(b./a(:,:,vv));
+        end
 
         %processing time
         p=zeros(n,8,5,3);
         p(:,:,:,3)=randi(84,[n,8,5]);
         p(:,:,:,1)=p(:,:,:,3)*1.5;
         p(:,:,:,2)=p(:,:,:,3)*1.2;
+        p=round(p,1);
 
         %OPA
         OPA=randi(300,[n,n_S]);
+        OPA=round(OPA,1);
 
         %transportation time
         l_temp=randi(200,[7,5,5]);
@@ -104,6 +110,7 @@ for n=[2 3 4 5 10 15 20 40 60 80 100 120]
         l(:,:,:,1)=l_temp*2;
         l(:,:,:,2)=l_temp;
         l(:,:,:,3)=l_temp*0.5;
+        l=round(l,1);
 
 
         % Unit Penalty of earliness & tardiness
