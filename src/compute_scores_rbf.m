@@ -27,8 +27,14 @@ function xnew = compute_scores_rbf(Data,CandPoint, lambda, gamma, rbf_flag )
 
 [mX,nX]=size(CandPoint); %dimensions of the points where function value should be predicted
 [mS,nS]=size(Data.S); %dimensions of sample site matrix (already evaluated points)  
-R = pdist2(CandPoint,Data.S); %compute pairwise dstances between points in X and S. pdist2 is MATLAB built-in function
+% R = pdist2(CandPoint,Data.S); %compute pairwise dstances between points in X and S. pdist2 is MATLAB built-in function
                               %pdist2(a*b,c*d)·µ»ØÒ»¸öa*c¾ØÕó
+dist1=pdist2(CandPoint(:,Data.category),Data.S(:,Data.category),"hamming");
+dist1=dist1.*numel(Data.category);
+non_cate=1:Data.dim;
+non_cate(Data.category)=[];
+dist2=pdist2(CandPoint(:,non_cate),Data.S(:,non_cate));
+R=sqrt(dist2.^2+dist1.^2);
 %compute RBF matrix values
 if strcmp(rbf_flag,'cub') %cobic RBF
     Phi=R.^3;

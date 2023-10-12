@@ -25,7 +25,7 @@ dist1=dist1.*numel(Data.category);
 non_cate=1:Data.dim;
 non_cate(Data.category)=[];
 dist2=pdist2(Data.S(:,non_cate),Data.S(:,non_cate));
-distances=sqrt(dist2.^2+dist1);
+distances=sqrt(dist2.^2+dist1.^2);
 % distances=pdist2(Data.S,Data.S); %compute pairwise dstances between points in S, pdist2 is MATLAB built-in function  成对的距离
 if strcmp(rbf_flag,'cub') %cubic RBF  立方
     PairwiseDistance=distances.^3; 

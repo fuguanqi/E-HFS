@@ -27,9 +27,15 @@ function xnew = compute_scores(Data,CandPoint, w_r, lambda, gamma, rbf_flag )
 
 [mX,nX]=size(CandPoint); %dimensions of the points where function value should be predicted
 [mS,nS]=size(Data.S); %dimensions of sample site matrix (already evaluated points)  
-R = pdist2(CandPoint,Data.S); %compute pairwise dstances between points in X and S. pdist2 is MATLAB built-in function
+% R = pdist2(CandPoint,Data.S); %compute pairwise dstances between points in X and S. pdist2 is MATLAB built-in function
                               %pdist2(a*b,c*d)·µ»ØÒ»¸öa*c¾ØÕó
-%compute RBF matrix values
+dist1=pdist2(CandPoint(:,Data.category),Data.S(:,Data.category),"hamming");
+dist1=dist1.*numel(Data.category);
+non_cate=1:Data.dim;
+non_cate(Data.category)=[];
+dist2=pdist2(CandPoint(:,non_cate),Data.S(:,non_cate));
+R=sqrt(dist2.^2+dist1.^2);
+                              %compute RBF matrix values
 if strcmp(rbf_flag,'cub') %cobic RBF
     Phi=R.^3;
 elseif strcmp(rbf_flag,'lin') %linear RBF
@@ -54,7 +60,8 @@ else
 end
 
 %% distance score
-dist=pdist2(CandPoint,Data.S(1:Data.m,:))'; %compute the pairwise distances between the candidate points and the already sampled points
+% dist=pdist2(CandPoint,Data.S(1:Data.m,:))'; %compute the pairwise distances between the candidate points and the already sampled points
+dist=R';
 %scale distances to already evaluated points to [0,1]
 min_dist = (min(dist,[],1))'; % distance of every candidate point to the set of already sampled points  
 max_min_dist = max(min_dist); %maximum of distances
