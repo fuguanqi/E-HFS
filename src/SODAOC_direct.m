@@ -60,7 +60,7 @@ Data.S(:,Data.integer)=round(Data.S(:,Data.integer));
 % save (strcat('temp_data\Data1.mat'));
 
 
-Iteration=min(Dim*500,30000);
+Iteration=Dim*100;
 
 % miso('datainput_dp',Iteration, 'rbf_c', [], 'slhd', 'cp4',[],Data); %SODA-ADM
 miso('datainput_direct',Iteration, 'rbf_c', [], 'slhd', 'soda_adm_fu',[],Data); %the new SODA-ADM

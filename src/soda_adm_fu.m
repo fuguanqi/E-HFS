@@ -344,6 +344,9 @@ while Data.m < Data.maxeval  %do until budget of function evaluations exhausted
         cp.count1=0;
     end
     Data.T(Data.m,1) = toc(fevalt); %update vector with evaluation times
+    if (Data.T(Data.m,1)>3600)
+        break;
+    end
 end
 
 %% -------ÖğÎ¬ÈÅ¶¯---------%
