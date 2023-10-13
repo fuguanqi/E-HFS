@@ -122,6 +122,9 @@ for n=[2 3 4 5 10 15 20 40 60 80 100 120]
 
         % Transportation unit Cost
         e_t=[0.25,1,4];
+        r=zeros(n,1);
+        r_max=round(max(mean(p,[1,3,4]).*n./machine));
+        r(:)=randi(r_max,[n,1]);
 
 
         save (strcat('problems\prob_',num2str(n),'_',num2str(n_S),'.mat'));

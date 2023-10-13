@@ -256,7 +256,7 @@ else
 end
 
 % Set some options for YALMIP and solver
-options = sdpsettings('solver','cplex','verbose',0);
+options = sdpsettings('solver','cplex','verbose',1);
 
 % Solve the problem
 sol = optimize(Constraints,Objective,options);

@@ -12,6 +12,7 @@ n=prob.n;
 n_S=prob.n_S;
 n_M=prob.n_M;
 A=zeros(n,n_S);
+A(:,1)=prob.r;
 y=0;
 C=zeros(n,n_S);
 for j=1:n_S
