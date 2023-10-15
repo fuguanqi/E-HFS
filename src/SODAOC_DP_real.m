@@ -13,27 +13,27 @@ for rr=1:repeat
             prob.n_M=prob.machine(1:n_S);
             n_M=prob.n_M;
 
-            int_dim=(n-1)*n_S+n*n_S+sum(n_M)+n*(n_S-1);% seq, assign, pr_speed, tr_speed
-            con_dim=0;
+            int_dim=n*n_S+sum(n_M)+n*(n_S-1);%  assign, pr_speed, tr_speed
+            con_dim=n*n_S;                   % seq
             Dim=int_dim+con_dim;
 
             Data.prob=prob;
 
             Data.number_startpoints=2*(Dim+1);
             Data.dim=Dim;
-            Data.xlow=[ones(1,Dim)];
+            Data.xlow=[zeros(1,con_dim),ones(1,int_dim)];
 
-            Data.xup=[repmat(2:n,1,n_S)];
+            Data.xup=[repmat([1],1,con_dim)];
             for i= 1:n_S
                 Data.xup=[Data.xup,repelem(n_M(i),n)];
             end
             Data.xup=[Data.xup,repelem(n_V,sum(n_M)),repelem(n_T,n*(n_S-1))];
 
-            Data.integer=[1:Dim]; %indices of integer variables
-            Data.category=[(n-1)*n_S+1:(n-1)*n_S+n*n_S]; %indices of category integer variables
+            Data.integer=[con_dim+1:Dim]; %indices of integer variables
+            Data.category=[(n)*n_S+1:(n)*n_S+n*n_S]; %indices of category integer variables
             % Data.category=[1:(n-1)*n_S+n*n_S]; %indices of category integer variables
             % Data.category=[];
-            Data.continuous=[]; %indices of continuous variables
+            Data.continuous=[1:con_dim]; %indices of continuous variables
 
             InitialPoints = slhd(Data);
             xlatin=repmat(Data.xlow, Data.number_startpoints,1) + repmat(Data.xup-Data.xlow,Data.number_startpoints,1).*InitialPoints;
@@ -61,7 +61,7 @@ for rr=1:repeat
 
 
             % miso('datainput_dp',Iteration, 'rbf_c', [], 'slhd', 'cp4',[],Data); %SODA-ADM
-            miso('datainput_dp',Iteration, 'rbf_c', [], 'slhd', 'soda_adm_fu',[],Data); %the new SODA-ADM
+            miso('datainput_real_dp',Iteration, 'rbf_c', [], 'slhd', 'soda_adm_fu',[],Data); %the new SODA-ADM
 
             % [xbest, fbest] = miso('datainput_dp',Iteration, 'rbf_c', [], 'slhd', 'cp6',[],Data); %SODA-ADM-DP
         end

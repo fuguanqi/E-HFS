@@ -17,9 +17,9 @@ for m=1:prob.n_M(j)
         stage_EP=stage_EP+m_EP;
         stage_ETI=stage_ETI+m_ETI;
         C(mac_seqs{m})=mC;
+
     end
 end
-
 end
 
 function [C,m_EP,m_ETI]=cal_1m(job_seq,j,m,v,A,prob)
@@ -27,7 +27,7 @@ A=A(job_seq);
 earliest_S=A;
 OPA=prob.OPA(job_seq,j);
 D=A+OPA;
-d_minus=max(0,D-prob.window_width(job_seq,j)/2);
+d_minus=max(A,D-prob.window_width(job_seq,j)/2);
 d_plus=D+prob.window_width(job_seq,j)/2;
 alpha_=prob.alpha_(job_seq,j);
 beta_=prob.beta_(job_seq,j);
@@ -101,11 +101,18 @@ for i=1:size(pre_f,2)
         pre_f(2,i)=pre_f(2,i)+(pre_f(1,i)-d_plus)*beta_;
     end
 end
+temp_f=sortrows(pre_f')';
+if ~isequal(temp_f,pre_f) 
+    error("error");
+end
+if  temp_f(2,end)<0.8*M
+    error("error");
+end
 f=adjustST(pre_f,earliest_S);
 pre_f=clear_func(pre_f);
 if pre_f(1,end-1)>constants.M*0.5
-        error("error");
-    end
+    error("error");
+end
 end
 
 
@@ -131,43 +138,28 @@ x3=constants.M;
 y3=y1;
 min_f=[];
 for i=2:size(f,2)
-    % if e_SI(f(1,i-1),y0,x0,a,b)==f(2,i-1)
-    %     if f(1,i-1)<x1
-    %         min_f=[min_f,[f(1:2,i-1);min(b/a,f(3,i-1))]];
-    %     else
-    %         min_f=[min_f,[f(1:2,i-1);min(0,f(3,i-1))]];
-    %     end
-    %     flag=0;
-    % elseif e_SI(f(1,i-1),y0,x0,a,b)>f(2,i-1)
-    %     min_f=[min_f,[f(1:3,i-1)]];
-    %     flag=1;
-    % else
-    %     flag=-1;
-    % end
     min_f=[min_f,[f(1,i-1);min(f(2,i-1),e_SI(f(1,i-1),y0,x0,a,b))]];
+    
     if f(1,i-1)<x1
         [is_intersect1,x,y]=intersect_at(f(1,i-1),f(2,i-1),f(1,i),f(2,i),x0,y0,x1,y1);
         if is_intersect1==1
             min_f=[min_f,[x;y]];
+            % min_f=[min_f,[x1;min(y1,f(2,i-1)+(x1-f(1,i-1))*(f(2,i)-f(2,i-1))/(f(1,i)-f(1,i-1)))]];
         end
-
-        [is_intersect2,x,y]=intersect_at(f(1,i-1),f(2,i-1),f(1,i),f(2,i),x1,y1,x3,y3);
-        if is_intersect2==1
+        if  x1<=f(1,i)
             min_f=[min_f,[x1;min(y1,f(2,i-1)+(x1-f(1,i-1))*(f(2,i)-f(2,i-1))/(f(1,i)-f(1,i-1)))]];
-            min_f=[min_f,[x;y]];
-        end
-        if is_intersect1==0 && is_intersect2==0
-            min_f=[min_f,[x1;y1]];
-        end
+        end       
     end
-    if f(1,i-1)>=x1
-        [is_intersect2,x,y]=intersect_at(f(1,i-1),f(2,i-1),f(1,i),f(2,i),x1,y1,x3,y3);
+    [is_intersect2,x,y]=intersect_at(f(1,i-1),f(2,i-1),f(1,i),f(2,i),x1,y1,x3,y3);
         if is_intersect2==1
             min_f=[min_f,[x;y]];
         end
-    end
 end
 min_f=[min_f,[f(1,end);min(f(2,end),e_SI(f(1,end),y0,x0,a,b))]];
+% temp_f=sortrows(min_f')';
+% if ~isequal(temp_f,min_f) 
+%     warning("error");
+% end
 min_f=clear_func(min_f);
 end
 
@@ -181,18 +173,18 @@ if size(f,2)<3
 end
 indToDel=[];
 for i=1:size(f,2)-1
-    if abs(f(1,i+1)-f(1,i))<0.0001
+    if abs(f(1,i+1)-f(1,i))<0.001
         indToDel=[indToDel,i+1];
     end
-    if f(1,i)>0.7*constants.M
-        indToDel=[indToDel,i];
-    end
+    % if f(1,i)>0.7*constants.M
+    %     error("error");
+    % end
 end
 f(:,indToDel)=[];
 
 indToDel=[];
 for i=1:size(f,2)-2
-    if  abs((f(2,i+1)-f(2,i))/(f(1,i+1)-f(1,i)) - (f(2,i+2)-f(2,i+1))/(f(1,i+2)-f(1,i+1)))<0.001
+    if  abs((f(2,i+1)-f(2,i))/(f(1,i+1)-f(1,i)) - (f(2,i+2)-f(2,i+1))/(f(1,i+2)-f(1,i+1)))<0.00001
         indToDel=[indToDel,i+1];
     end
 end
