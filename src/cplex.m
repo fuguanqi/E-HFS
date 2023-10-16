@@ -299,7 +299,7 @@ end
 
 
 % Set some options for YALMIP and solver
-options = sdpsettings('solver','cplex','verbose',4);
+options = sdpsettings('solver','cplex','verbose',4,'cplex.timelimit',3000);
 
 % Solve the problem
 tic

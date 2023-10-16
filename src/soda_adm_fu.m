@@ -344,88 +344,88 @@ while Data.m < Data.maxeval  %do until budget of function evaluations exhausted
         cp.count1=0;
     end
     Data.T(Data.m,1) = toc(fevalt); %update vector with evaluation times
-    if (Data.T(Data.m,1)>3600)
+    if (Data.T(Data.m,1)>3000)
         break;
     end
 end
 
-%% -------逐维扰动---------%
-%% parameters and initialization for coordinate perturbation
-cp.ncand= min(10*Data.dim,5000); % number of candidate points
-cp.xrange = Data.xup - Data.xlow; %variable range in every dimension
-% cp.minxrange = min(cp.xrange); %smallest variable range
-cp.minxrange = median(cp.xrange);
-% cp.sigma_stdev_default = 0.5*cp.minxrange;    %perturbation range for generating candidate points
-
-cp.sigma_stdev(1,:) = 0.6*cp.xrange; %160
-cp.sigma_stdev(2,:) = 0.2*cp.xrange; %20
-cp.sigma_stdev(3,:) = 0.025*cp.xrange; %2
-cp.sigma_stdev(4,:) = 0.005*cp.xrange; %0.5
-cp.sigma_min(1,:)=0.6*(1/2)^4*cp.xrange; %0.015625   %扰动半径的下界，即阈值
-cp.sigma_min(2,:)=0.2*(1/2)^4*cp.xrange;
-cp.sigma_min(3,:)=0.025*(1/2)^4*cp.xrange;
-cp.sigma_min(4,:)=0.005*(1/2)^4*cp.xrange;
-cp.sigma_max=cp.sigma_stdev;                    %扰动半径上界
-
-cp.maxshrinkparam = 5; % maximal number of perturbation range reduction
-cp.failtolerance = round(sqrt(Data.dim)); %threshold for consecutively failed improvement trials
-cp.succtolerance =3; %threshold for consecutively successful improvement trials
-cp.iterctr = 0; % number of iterations
-cp.shrinkctr = 0; % number of times perturbation range was reduced
-cp.failctr = 0; % number of consecutive unsuccessful iterations
-cp.succctr=0; % number of consecutive successful iterations
-cp.weightpattern=[0.3,0.5,0.8,0.95]; %weight pattern for scoring candidate points
-
-Data.S(Data.m,:)=Data.xbest;
-Data.Fbest=Data.fbest;
-%% -------判断阶段----------%
-while Data.m < Data.maxeval
-    m=Data.m;
-
-    mw=mod(cp.iterctr,length(cp.weightpattern));
-    if mw==0
-        w_r=cp.weightpattern(end);
-    else
-        w_r=cp.weightpattern(mw);
-    end
-    % %-------逐维扰动----------%
-    for kk=1:Data.dim
-        PP=zeros(1,Data.dim);
-        PP(kk)=1;
-        %        SOL=cp_ME(Data,PP,cp);
-        SOL=cprbf2(Data,PP,cp);
-        %        SOL=cp_dafen(Data,PP,w_r,cp);
-        cp=SOL.cp;
-        Data.xbest=SOL.xbest;
-        Data.fbest=SOL.fbest;
-        %          f_p=feval(Data.objfunction,SOL.x_p);
-        %            if f_p < Data.fbest
-        %              Data.xbest=SOL.x_p;
-        %              Data.fbest=f_p;
-        %            end
-        %     Data.S = [Data.S;Data.xbest]; %采样点集
-        %       if length(SOL.S)==Data.S+1
-        %           Data.S = [Data.S;Data.xbest];
-        %       elseif length(SOL.S) > Data.S+1
-        %           Data.S = SOL.S;
-        %             if f_p > Data.fbest
-        %                Data.S = [Data.S;Data.xbest];
-        %             end
-        %       end
-        Data.S=SOL.S;
-        Data.m = SOL.m;
-        Data.Y = SOL.Y;
-    end
-
-
-    %------------更新数据:cp-------------%
-
-    Data.Fbest=[Data.Fbest;Data.fbest];
-    xbest= Data.xbest;
-    fbest=Data.fbest;
-    fprintf('\n Number of function evaluations: %d \n', Data.m);
-
-end %while
+% %% -------逐维扰动---------%
+% %% parameters and initialization for coordinate perturbation
+% cp.ncand= min(10*Data.dim,5000); % number of candidate points
+% cp.xrange = Data.xup - Data.xlow; %variable range in every dimension
+% % cp.minxrange = min(cp.xrange); %smallest variable range
+% cp.minxrange = median(cp.xrange);
+% % cp.sigma_stdev_default = 0.5*cp.minxrange;    %perturbation range for generating candidate points
+% 
+% cp.sigma_stdev(1,:) = 0.6*cp.xrange; %160
+% cp.sigma_stdev(2,:) = 0.2*cp.xrange; %20
+% cp.sigma_stdev(3,:) = 0.025*cp.xrange; %2
+% cp.sigma_stdev(4,:) = 0.005*cp.xrange; %0.5
+% cp.sigma_min(1,:)=0.6*(1/2)^4*cp.xrange; %0.015625   %扰动半径的下界，即阈值
+% cp.sigma_min(2,:)=0.2*(1/2)^4*cp.xrange;
+% cp.sigma_min(3,:)=0.025*(1/2)^4*cp.xrange;
+% cp.sigma_min(4,:)=0.005*(1/2)^4*cp.xrange;
+% cp.sigma_max=cp.sigma_stdev;                    %扰动半径上界
+% 
+% cp.maxshrinkparam = 5; % maximal number of perturbation range reduction
+% cp.failtolerance = round(sqrt(Data.dim)); %threshold for consecutively failed improvement trials
+% cp.succtolerance =3; %threshold for consecutively successful improvement trials
+% cp.iterctr = 0; % number of iterations
+% cp.shrinkctr = 0; % number of times perturbation range was reduced
+% cp.failctr = 0; % number of consecutive unsuccessful iterations
+% cp.succctr=0; % number of consecutive successful iterations
+% cp.weightpattern=[0.3,0.5,0.8,0.95]; %weight pattern for scoring candidate points
+% 
+% Data.S(Data.m,:)=Data.xbest;
+% Data.Fbest=Data.fbest;
+% %% -------判断阶段----------%
+% while Data.m < Data.maxeval
+%     m=Data.m;
+% 
+%     mw=mod(cp.iterctr,length(cp.weightpattern));
+%     if mw==0
+%         w_r=cp.weightpattern(end);
+%     else
+%         w_r=cp.weightpattern(mw);
+%     end
+%     % %-------逐维扰动----------%
+%     for kk=1:Data.dim
+%         PP=zeros(1,Data.dim);
+%         PP(kk)=1;
+%         %        SOL=cp_ME(Data,PP,cp);
+%         SOL=cprbf2(Data,PP,cp);
+%         %        SOL=cp_dafen(Data,PP,w_r,cp);
+%         cp=SOL.cp;
+%         Data.xbest=SOL.xbest;
+%         Data.fbest=SOL.fbest;
+%         %          f_p=feval(Data.objfunction,SOL.x_p);
+%         %            if f_p < Data.fbest
+%         %              Data.xbest=SOL.x_p;
+%         %              Data.fbest=f_p;
+%         %            end
+%         %     Data.S = [Data.S;Data.xbest]; %采样点集
+%         %       if length(SOL.S)==Data.S+1
+%         %           Data.S = [Data.S;Data.xbest];
+%         %       elseif length(SOL.S) > Data.S+1
+%         %           Data.S = SOL.S;
+%         %             if f_p > Data.fbest
+%         %                Data.S = [Data.S;Data.xbest];
+%         %             end
+%         %       end
+%         Data.S=SOL.S;
+%         Data.m = SOL.m;
+%         Data.Y = SOL.Y;
+%     end
+% 
+% 
+%     %------------更新数据:cp-------------%
+% 
+%     Data.Fbest=[Data.Fbest;Data.fbest];
+%     xbest= Data.xbest;
+%     fbest=Data.fbest;
+%     fprintf('\n Number of function evaluations: %d \n', Data.m);
+% 
+% end %while
 
 
 

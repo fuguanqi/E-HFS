@@ -6,8 +6,8 @@ n_S_array=[1,2,4,8];
 n_V=3;
 n_T=3;
 for rr=1:repeat
-    for n_S=n_S_array
-        for n=n_array
+    for n_S=2
+        for n=120
             prob=load (strcat('problems\prob_',num2str(n),'_',num2str(n_S),'.mat'));
 
             prob.n_M=prob.machine(1:n_S);
