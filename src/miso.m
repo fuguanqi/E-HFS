@@ -248,7 +248,7 @@ sol.total_T = toc(TimeStart); %stop timer for optimization
 %     '_d',num2str(Data.d),'_mt',num2str(Data.mt),'_r',num2str(Data.r),'.mat'));
 data_to_write=[];
 ii=1;
-while ii<Data.m
+while ii<sol.m
     data_to_write(:,end+1)=[sol.cur_best(ii);sol.T(ii)];
     ii=ii+5;
 end
