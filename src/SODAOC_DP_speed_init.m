@@ -74,12 +74,10 @@ for rr=1:repeat
 
             % miso('datainput_dp',Iteration, 'rbf_c', [], 'slhd', 'cp4',[],Data); %SODA-ADM
             [xbest, fbest]=miso('datainput_dp_speed',Iteration, 'rbf_c', [], 'slhd', 'soda_adm_fu',[],Data); %the new SODA-ADM
-            sol_best=[sol_best;xbest];
-            obj_best=[obj_best;fbest];
+            writematrix(xbest,strcat('datainput_dp_speed/best_X_n',num2str(Data.prob.n),'_',num2str(Data.prob.n_S)), 'WriteMode','append');
             % [xbest, fbest] = miso('datainput_dp',Iteration, 'rbf_c', [], 'slhd', 'cp6',[],Data); %SODA-ADM-DP
         end
     end
-    save('datainput_dp_speed/',num2str(n),'_',num2str(n_S),'.mat');
 end
 
 function sol=greedy_sol_D(prob)

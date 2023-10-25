@@ -5,8 +5,6 @@ repeat=15;
 n_S_array=[1,2,4,8];
 n_V=3;
 n_T=3;
-sol_best=[];
-obj_best=[];
 for rr=1:repeat
     for n_S=n_S_array
         for n=n_array
@@ -78,12 +76,13 @@ for rr=1:repeat
 
             % miso('datainput_dp',Iteration, 'rbf_c', [], 'slhd', 'cp4',[],Data); %SODA-ADM
             [xbest, fbest]=miso('datainput_real_dp',Iteration, 'rbf_c', [], 'slhd', 'soda_adm_fu',[],Data); %the new SODA-ADM
-            sol_best=[sol_best;xbest];
-            obj_best=[obj_best;fbest];
             % [xbest, fbest] = miso('datainput_dp',Iteration, 'rbf_c', [], 'slhd', 'cp6',[],Data); %SODA-ADM-DP
-        end
+        
+        writematrix(xbest,strcat('datainput_real_dp/best_X_n',num2str(Data.prob.n),'_',num2str(Data.prob.n_S)), 'WriteMode','append');
+
+end
     end
-    save('datainput_real_dp/',num2str(n),'_',num2str(n_S),'.mat');
+    
 end
 
 function sol=greedy_sol_D(prob)
