@@ -11,10 +11,10 @@ cp.sigma_stdev=ones(4,Data.dim);
 cp.sigma_min=ones(4,Data.dim);
 cp.sigma_max=ones(4,Data.dim);
 %%----缩放1----%%%%
-cp.sigma_stdev(1,:) = 0.6*cp.xrange; %160
-cp.sigma_stdev(2,:) = 0.1*cp.xrange; %20
-cp.sigma_stdev(3,:) = 0.01*cp.xrange; %2
-cp.sigma_stdev(4,:) = 0.0025*cp.xrange; %0.5
+cp.sigma_stdev(1,:) = 1.0*cp.xrange; %160
+cp.sigma_stdev(2,:) = 0.6*cp.xrange; %20
+cp.sigma_stdev(3,:) = 0.3*cp.xrange; %2
+cp.sigma_stdev(4,:) = 0.1*cp.xrange; %0.5
 cp.sigma_min(1,:)=0.2*(1/2)^6*cp.xrange; %0.015625   %扰动半径的下界，即阈值
 cp.sigma_min(2,:)=0.2*(1/2)^6*cp.xrange;
 cp.sigma_min(3,:)=0.2*(1/2)^6*cp.xrange;
@@ -64,7 +64,8 @@ while Data.m < Data.maxeval  %do until budget of function evaluations exhausted
 
     % Compute perturbation probability
     %%%%%原始概率%%%%%
-    pert_p = min(20/Data.dim,1)*(1-(log(Data.m-2*(Data.dim+1)+1)/log(Data.maxeval-2*(Data.dim+1))));
+    % pert_p = min(20/Data.dim,1)*(1-(log(Data.m-2*(Data.dim+1)+1)/log(Data.maxeval-2*(Data.dim+1))));
+    pert_p = 0.1*(1-(mod(Data.m-2*(Data.dim+1),40)/40));
     %create candidate points by perturbing best point found
     %         if  pert_p <0.6
     %            pert_p= pert_p+0.2;

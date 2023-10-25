@@ -6,8 +6,8 @@ n_S_array=[1,2,4,8];
 n_V=3;
 n_T=3;
 for rr=1:repeat
-    for n_S=4
-        for n=20
+    for n_S=n_S_array
+        for n=n_array
             prob=load (strcat('problems\prob_',num2str(n),'_',num2str(n_S),'.mat'));
 
             prob.n_M=prob.machine(1:n_S);
@@ -53,31 +53,33 @@ for rr=1:repeat
             end
             Data.S(:,Data.integer)=round(Data.S(:,Data.integer));
 
-            for i=1:ceil(n*n_S/10)
+            for i=1:ceil(n*n_S/5)
                 greedy_x=greedy_sol_D(Data.prob);
                 Data.S=[Data.S;greedy_x];
             end
 
-            for i=1:ceil(n*n_S/10)
+            for i=1:ceil(n*n_S/5)
                 greedy_x=greedy_sol_Dl(Data.prob);
                 Data.S=[Data.S;greedy_x];
             end
 
-            for i=1:ceil(n*n_S/10)
+            for i=1:ceil(n*n_S/5)
                 greedy_x=greedy_sol_Du(Data.prob);
                 Data.S=[Data.S;greedy_x];
             end
-            
 
-            Iteration=Dim*150;
+
+            Iteration=Dim*100;
 
 
             % miso('datainput_dp',Iteration, 'rbf_c', [], 'slhd', 'cp4',[],Data); %SODA-ADM
-            miso('datainput_dp_speed',Iteration, 'rbf_c', [], 'slhd', 'soda_adm_fu',[],Data); %the new SODA-ADM
-
+            [xbest, fbest]=miso('datainput_dp_speed',Iteration, 'rbf_c', [], 'slhd', 'soda_adm_fu',[],Data); %the new SODA-ADM
+            sol_best=[sol_best;xbest];
+            obj_best=[obj_best;fbest];
             % [xbest, fbest] = miso('datainput_dp',Iteration, 'rbf_c', [], 'slhd', 'cp6',[],Data); %SODA-ADM-DP
         end
     end
+    save('datainput_dp_speed/',num2str(n),'_',num2str(n_S),'.mat');
 end
 
 function sol=greedy_sol_D(prob)
@@ -110,7 +112,7 @@ for s=1:prob.n_S
     C(:,s)=stage_C;
     if s<n_S
         l=prob.l;
-       
+
         assign_next=[randi(prob.n_M(s+1),1,prob.n)];
         for i=1:n
             A(i,s+1)=C(i,s)+l(s,assign(i),assign_next(i),1);
@@ -153,7 +155,7 @@ for s=1:prob.n_S
     C(:,s)=stage_C;
     if s<n_S
         l=prob.l;
-       
+
         assign_next=[randi(prob.n_M(s+1),1,prob.n)];
         for i=1:n
             A(i,s+1)=C(i,s)+l(s,assign(i),assign_next(i),1);
@@ -195,7 +197,7 @@ for s=1:prob.n_S
     C(:,s)=stage_C;
     if s<n_S
         l=prob.l;
-       
+
         assign_next=[randi(prob.n_M(s+1),1,prob.n)];
         for i=1:n
             A(i,s+1)=C(i,s)+l(s,assign(i),assign_next(i),1);

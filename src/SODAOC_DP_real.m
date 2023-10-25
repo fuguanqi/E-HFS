@@ -5,6 +5,8 @@ repeat=15;
 n_S_array=[1,2,4,8];
 n_V=3;
 n_T=3;
+sol_best=[];
+obj_best=[];
 for rr=1:repeat
     for n_S=n_S_array
         for n=n_array
@@ -55,16 +57,156 @@ for rr=1:repeat
 
 
             % save (strcat('temp_data\Data1.mat'));
+            for i=1:ceil(n*n_S/5)
+                greedy_x=greedy_sol_D(Data.prob);
+                Data.S=[Data.S;greedy_x];
+            end
+
+            for i=1:ceil(n*n_S/5)
+                greedy_x=greedy_sol_Dl(Data.prob);
+                Data.S=[Data.S;greedy_x];
+            end
+
+            for i=1:ceil(n*n_S/5)
+                greedy_x=greedy_sol_Du(Data.prob);
+                Data.S=[Data.S;greedy_x];
+            end
 
 
             Iteration=Dim*100;
 
 
             % miso('datainput_dp',Iteration, 'rbf_c', [], 'slhd', 'cp4',[],Data); %SODA-ADM
-            miso('datainput_real_dp',Iteration, 'rbf_c', [], 'slhd', 'soda_adm_fu',[],Data); %the new SODA-ADM
-
+            [xbest, fbest]=miso('datainput_real_dp',Iteration, 'rbf_c', [], 'slhd', 'soda_adm_fu',[],Data); %the new SODA-ADM
+            sol_best=[sol_best;xbest];
+            obj_best=[obj_best;fbest];
             % [xbest, fbest] = miso('datainput_dp',Iteration, 'rbf_c', [], 'slhd', 'cp6',[],Data); %SODA-ADM-DP
         end
     end
+    save('datainput_real_dp/',num2str(n),'_',num2str(n_S),'.mat');
 end
 
+function sol=greedy_sol_D(prob)
+n=prob.n;
+n_S=prob.n_S;
+n_M=prob.n_M;
+A=zeros(n,n_S);
+A(:,1)=prob.r;
+y=0;
+C=zeros(n,n_S);
+D=[prob.r+prob.OPA(1) [1:prob.n]'];
+sol_seq=[];
+sol_assign=[];
+sol_pv=[];
+sol_tv=ones(1,prob.n*(prob.n_S-1));
+assign_next=[randi(prob.n_M(1),1,prob.n)];
+
+for s=1:prob.n_S
+    D=sortrows(D);
+    stage_seq=D(:,2);
+    stage_seq=[stage_seq [1:n]'];
+    stage_seq=sortrows(stage_seq);
+    stage_seq=(stage_seq(:,2)-1).*(1/n);
+    sol_seq=[sol_seq stage_seq'];
+    assign=assign_next;
+    sol_assign=[sol_assign,assign];
+    pv=randi(3,1,n_M(s));
+    sol_pv=[sol_pv pv];
+    [stage_C,stage_EP,stage_ETI]=timingByDP(D(:,2),assign,pv,A(:,s),s,prob);
+    C(:,s)=stage_C;
+    if s<n_S
+        l=prob.l;
+       
+        assign_next=[randi(prob.n_M(s+1),1,prob.n)];
+        for i=1:n
+            A(i,s+1)=C(i,s)+l(s,assign(i),assign_next(i),1);
+        end
+        D=[A(:,s+1)+prob.OPA(s) [1:prob.n]'];
+    end
+end
+sol=[sol_seq sol_assign sol_pv sol_tv];
+
+end
+
+
+function sol=greedy_sol_Du(prob)
+n=prob.n;
+n_S=prob.n_S;
+n_M=prob.n_M;
+A=zeros(n,n_S);
+A(:,1)=prob.r;
+y=0;
+C=zeros(n,n_S);
+D=[prob.r+prob.OPA(1)+prob.window_width(1) [1:prob.n]'];
+sol_seq=[];
+sol_assign=[];
+sol_tv=ones(1,prob.n*(prob.n_S-1));
+assign_next=[randi(prob.n_M(1),1,prob.n)];
+sol_pv=[];
+for s=1:prob.n_S
+    D=sortrows(D);
+    stage_seq=D(:,2);
+    stage_seq=[stage_seq [1:n]'];
+    stage_seq=sortrows(stage_seq);
+    stage_seq=(stage_seq(:,2)-1).*(1/n);
+    sol_seq=[sol_seq stage_seq'];
+    assign=assign_next;
+    sol_assign=[sol_assign,assign];
+    pv=randi(3,1,n_M(s));
+    sol_pv=[sol_pv pv];
+    [stage_C,stage_EP,stage_ETI]=timingByDP(D(:,2),assign,pv,A(:,s),s,prob);
+    C(:,s)=stage_C;
+    if s<n_S
+        l=prob.l;
+       
+        assign_next=[randi(prob.n_M(s+1),1,prob.n)];
+        for i=1:n
+            A(i,s+1)=C(i,s)+l(s,assign(i),assign_next(i),1);
+        end
+        D=[A(:,s+1)+prob.OPA(s)+prob.window_width(s) [1:prob.n]'];
+    end
+end
+sol=[sol_seq sol_assign sol_pv sol_tv];
+
+end
+
+function sol=greedy_sol_Dl(prob)
+n=prob.n;
+n_S=prob.n_S;
+n_M=prob.n_M;
+A=zeros(n,n_S);
+A(:,1)=prob.r;
+y=0;
+C=zeros(n,n_S);
+D=[prob.r+prob.OPA(1)-prob.window_width(1) [1:prob.n]'];
+sol_seq=[];
+sol_assign=[];
+sol_tv=ones(1,prob.n*(prob.n_S-1));
+assign_next=[randi(prob.n_M(1),1,prob.n)];
+sol_pv=[];
+for s=1:prob.n_S
+    D=sortrows(D);
+    stage_seq=D(:,2);
+    stage_seq=[stage_seq [1:n]'];
+    stage_seq=sortrows(stage_seq);
+    stage_seq=(stage_seq(:,2)-1).*(1/n);
+    sol_seq=[sol_seq stage_seq'];
+    assign=assign_next;
+    sol_assign=[sol_assign,assign];
+    pv=randi(3,1,n_M(s));
+    sol_pv=[sol_pv pv];
+    [stage_C,stage_EP,stage_ETI]=timingByDP(D(:,2),assign,pv,A(:,s),s,prob);
+    C(:,s)=stage_C;
+    if s<n_S
+        l=prob.l;
+       
+        assign_next=[randi(prob.n_M(s+1),1,prob.n)];
+        for i=1:n
+            A(i,s+1)=C(i,s)+l(s,assign(i),assign_next(i),1);
+        end
+        D=[A(:,s+1)+prob.OPA(s)-prob.window_width(s) [1:prob.n]'];
+    end
+end
+sol=[sol_seq sol_assign sol_pv sol_tv];
+
+end
