@@ -37,8 +37,8 @@ for j=1:n_S
     if j<n_S
         l=prob.l;
         E_Tr=zeros(n,1);
-        tr_speed=x((n)*n_S+n*n_S+sum(n_M)+(j-1)*n+1:(n)*n_S+n*n_S+sum(n_M)+j*n);
-        assign_next=x(n_S*(n)+j*n+1:n_S*(n)+(j+1)*n);
+        tr_speed=x(n*n_S+n*n_S+(j-1)*n+1:n*n_S+n*n_S+j*n);
+        assign_next=x(n*n_S+j*n+1:n*n_S+(j+1)*n);
         for i=1:n
             A(i,j+1)=C(i,j)+l(j,assign(i),assign_next(i),tr_speed(i));
             E_Tr(i)=l(j,assign(i),assign_next(i),tr_speed(i))*prob.e_t(tr_speed(i));

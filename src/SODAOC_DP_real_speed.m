@@ -1,8 +1,8 @@
 clc;clear;
 warning("off");
-n_array=[20,40,60,80,100,120];
+n_array=[20,40,60,80,100];
 repeat=5;
-n_S_array=[1,2,4,8];
+n_S_array=[2,1,4,8];
 n_V=3;
 n_T=3;
 for rr=1:repeat
